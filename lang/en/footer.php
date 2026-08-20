@@ -1,0 +1,22 @@
+<?php
+return [
+    'about_store' => "About Store",
+    'extra' => "Extra",
+    'brands' => "Brands",
+    'affiliate' => "Affiliate",
+    'specials' => "Specials",
+    'my_account' => "My Account",
+    'order_history' => "Order History",
+    'wish_list' => "Wish List",
+    'newsletter' => "Newsletter",
+    'returns' => "Returns",
+    'information' => "Information",
+    'privacy_policy' => "Privacy Policy",
+    'terms_cond' => "Terms & Conditions",
+    'delivery_info' => "Delivery Information",
+    'about_us' => "About Us",
+    'store_info' => "Store Information",
+    'gift' => "Gift Certificates",
+    'site' => "Site Map",
+    'powered_By' => "Powered By OpenCart ALZAHRAA-@2023",
+];

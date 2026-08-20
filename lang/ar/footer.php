@@ -1,0 +1,23 @@
+<?php
+return [
+    'about_store' => "حول المتجر",
+    'extra' => "إضافات",
+    'brands' => "الشركات",
+    'affiliate' => "نظام العمولة",
+    'specials' => "العروض المميزة",
+    'specials' => "خريطة الموقع",
+    'my_account' => "حسابي",
+    'order_history' => "طلباتي",
+    'wish_list' => "قائمة رغباتي",
+    'newsletter' => "القائمة البريدية",
+    'returns' => "إرجاع الطلب",
+    'information' => "معلومات",
+    'privacy_policy' => "الخصوصية",
+    'terms_cond' => "شروط الاستخدام",
+    'delivery_info' => "معلومات الشحن والتوصيل",
+    'about_us' => "من نحن",
+    'store_info' => "معلومات الموقع",
+    'gift' => "قسائم الهدايا",
+    'site' => "خريطة الموقع",
+    'powered_By' => "Powered By OpenCart ALZAHRAA-@2023",
+];
