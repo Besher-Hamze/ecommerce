@@ -277,7 +277,7 @@
 
                         </div>
 
-                        <input type="hidden" name="product_id" value="{{$product->id}}">
+                        <input type="hidden" name="product_id" value="{{$product->product_id}}">
                     </form>
                     @endauth
                 </div>

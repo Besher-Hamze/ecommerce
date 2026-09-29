@@ -31,6 +31,6 @@ class Shop_product extends Model
     
 public function reviews()
 {
-    return $this->hasMany(Review::class,'product_id');
+    return $this->hasMany(Review::class,'product_id','product_id');
 }
 }

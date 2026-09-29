@@ -119,14 +119,19 @@ class ProductController extends Controller
    }
    public function reviewStore(Request $request)
    {
-      // dd($request->all());
-      $review = new Review();
-      $review->product_id = $request->product_id;
-      $review->review = $request->review;
-      $review->star = $request->rating;
-      $review->user_id = Auth::user()->id;
-      // $review->service_id = $request->service_id;
-      $review->save();
+      $data = $request->validate([
+         'product_id' => ['required', 'exists:products,id'],
+         'review' => ['nullable', 'string', 'max:5000'],
+         'rating' => ['required', 'integer', 'between:1,5'],
+      ]);
+
+      Review::create([
+         'product_id' => $data['product_id'],
+         'user_id' => Auth::id(),
+         'review' => $data['review'] ?? null,
+         'star' => $data['rating'],
+      ]);
+
       return redirect()->back()->with('success', 'Your review has been submitted Successfully,');
    }
    public function index(Request $request)
