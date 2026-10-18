@@ -148,15 +148,21 @@
                    </a>
                </li>
                <li>
+                   <a href="{{route('admin.recommendations.index')}}">
+                       <i class="fa fa-magic"></i>
+                       <span>محرك التوصيات</span>
+                   </a>
+               </li>
+               <li>
                    <a href="{{route('admin.association-rules.index')}}">
                        <i class="fa fa-line-chart"></i>
-                       <span>تحليل Apriori</span>
+                       <span>قواعد Apriori</span>
                    </a>
                </li>
                <li>
                    <a href="{{route('apriori.index')}}">
-                       <i class="fa fa-chart-line"></i>
-                       <span>Association Rules (Apriori)</span>
+                       <i class="fa fa-bar-chart-o"></i>
+                       <span>Apriori (legacy)</span>
                    </a>
                </li>
            </ul>

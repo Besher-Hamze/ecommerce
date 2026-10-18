@@ -2,37 +2,44 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\Cache;
 use App\Models\Category;
 use App\Models\Setting;
+use App\Services\CartService;
+use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\View;
+use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
-    /**
-     * Register any application services.
-     *
-     * @return void
-     */
+    public const SETTINGS_CACHE_KEY = 'store.settings';
+    public const CATEGORIES_CACHE_KEY = 'store.nav_categories';
+
     public function register()
     {
         //
     }
 
-    /**
-     * Bootstrap any application services.
-     *
-     * @return void
-     */
     public function boot()
     {
-       $categories = Cache::rememberForever('categories', function () {
-            return Category::where('status','=',1)->get();
-        });
+        Paginator::useBootstrapFive();
 
-        $settings = Cache::rememberForever('settings', function () {
-            return Setting::all();
+        View::composer(['website.*'], function ($view) {
+            $settings = Cache::remember(self::SETTINGS_CACHE_KEY, 3600, function () {
+                return Setting::pluck('value', 'key')->all();
+            });
+
+            $navCategories = Cache::remember(self::CATEGORIES_CACHE_KEY, 3600, function () {
+                return Category::whereNull('parent_id')
+                    ->where('status', 1)
+                    ->with(['children' => fn ($q) => $q->where('status', 1)->orderBy('sort_order')])
+                    ->orderBy('sort_order')
+                    ->get();
+            });
+
+            $view->with('storeSettings', $settings)
+                ->with('navCategories', $navCategories)
+                ->with('cartCount', CartService::totalQuantity(session('cart', [])));
         });
-		
     }
 }

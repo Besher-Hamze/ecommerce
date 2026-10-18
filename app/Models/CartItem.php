@@ -9,7 +9,7 @@ class CartItem extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['cart_id', 'shop_product_id', 'quantity', 'price'];
+    protected $fillable = ['cart_id', 'shop_product_id', 'quantity', 'price', 'source'];
 
     // Relationship: A cart item belongs to a cart
     public function cart()

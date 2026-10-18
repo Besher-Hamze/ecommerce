@@ -3,8 +3,9 @@
 namespace App\Http\Controllers;
 use App\Models\Order;
 use App\Models\OrderItem;
-use Illuminate\Http\Request;
 use App\Models\Shop_product;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 class OrderDashController extends Controller
 {
     public function index()
@@ -19,9 +20,18 @@ class OrderDashController extends Controller
 			                    ->leftjoin('brands','brands.id','=','shop_products.brand_id')
 			                    ->leftjoin('shops','shops.id','=','shop_products.shop_id')
 			->select('','','','','','','','','',)*/
-		$order_items=OrderItem::join('shop_products','shop_products.id','=','order_items.product_id')
-		    ->join('products','products.id','=','shop_products.product_id')
-			->where('order_items.order_id','=',$order->id)->select('shop_products.id','products.name','products.image_url','products.product_code','order_items.unit_price','order_items.quantity')->get();
+		$order_items=OrderItem::join('products','products.id','=','order_items.product_id')
+		    ->leftJoin('shop_products','shop_products.id','=','order_items.shop_product_id')
+			->where('order_items.order_id','=',$order->id)
+			->select(
+				DB::raw('COALESCE(shop_products.id, products.id) as id'),
+				'products.name',
+				'products.image_url',
+				'products.product_code',
+				'order_items.unit_price',
+				'order_items.quantity',
+				'order_items.rec_source'
+			)->get();
 		//dd($order_items);
 		return view('dashboard.order.details',compact('order','order_items'));
 	}

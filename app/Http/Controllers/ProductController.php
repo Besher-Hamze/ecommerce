@@ -11,8 +11,13 @@ use App\Models\Image;
 use App\Models\Shop;
 use App\Models\Product_state;
 use App\Models\Shop_product;
+use App\Models\ProductView;
+use App\Services\ProductStats;
+use App\Services\Recommendation\EventTracker;
+use App\Services\Recommendation\RecommendationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Rap2hpoutre\FastExcel\FastExcel;
 
@@ -80,10 +85,8 @@ class ProductController extends Controller
       //dd($products);
       return view('website.all-products', compact('products', 'category'))->with('cart', $cart);
    }
-   // واذا دخلت على المنتج بحاله ضمن الصفحة الرئيسية  تفاصيل كل منتج بمنتجه العين التانية بعد مادخلت علعين الاولى 
-   public function showDetail($id)
+   public function showDetail($id, RecommendationService $reco)
    {
-
       $product = Shop_product::join('products', 'products.id', '=', 'shop_products.product_id')
          ->leftJoin('brands', 'brands.id', '=', 'shop_products.brand_id')
          ->leftJoin('categories', 'categories.id', '=', 'shop_products.category_id')
@@ -97,26 +100,49 @@ class ProductController extends Controller
             'products.description',
             'products.eng_name',
             'products.eng_description',
+            'products.rating_avg',
+            'products.rating_count',
+            'products.form',
             'shop_products.price',
             'shop_products.id',
+            'shop_products.product_type',
             'brands.name as brand_name',
-            'categories.name as category_name',
+            'categories.eng_name as category_name',
             'categories.id as category_id'
          )
-         ->with(['images', 'reviews'])
-         ->first();
-      $averageRating = Review::where('product_id', $id)->avg('star');
+         ->with(['images', 'reviews.user'])
+         ->firstOrFail();
 
-      $rating = round($averageRating ?? 0);
+      $rating = (int) round($product->rating_avg ?? 0);
 
-      // المنتجات المتعلقة (نفس التصنيف مع استثناء المنتج الحالي)
-      $relatedProducts = Shop_product::join('products', 'products.id', '=', 'shop_products.product_id')->where('category_id', $product->category_id)
-         ->where('products.id', '!=', $id)
-         ->latest('products.created_at')->take(8)
-         ->get();
+      ProductView::create([
+         'user_id' => Auth::id(),
+         'session_id' => session()->getId(),
+         'product_id' => (int) $id,
+         'source' => request('rec'),
+      ]);
+      DB::table('products')->where('id', $id)->increment('view_count');
 
-      return view('website.details', compact('product', 'rating', 'relatedProducts'));
+      if ($source = request('rec')) {
+         EventTracker::record('click', $source, (int) $id, request()->filled('ctx') ? (int) request('ctx') : null);
+      }
+
+      $bundle = $reco->crossSell((int) $id, 3);
+      $upsells = $reco->upsell((int) $id, 2);
+      $similar = $reco->similar((int) $id, 8);
+      $alsoLiked = $reco->alsoLiked((int) $id, 8);
+      $recentlyViewed = $reco->recentlyViewed(Auth::id(), session()->getId(), 6, (int) $id);
+
+      EventTracker::impressions('bundle', $bundle, (int) $id);
+      EventTracker::impressions('upsell', $upsells, (int) $id);
+      EventTracker::impressions('similar', $similar, (int) $id);
+      EventTracker::impressions('cf', $alsoLiked, (int) $id);
+
+      return view('website.details', compact(
+         'product', 'rating', 'bundle', 'upsells', 'similar', 'alsoLiked', 'recentlyViewed'
+      ));
    }
+
    public function reviewStore(Request $request)
    {
       $data = $request->validate([
@@ -132,7 +158,9 @@ class ProductController extends Controller
          'star' => $data['rating'],
       ]);
 
-      return redirect()->back()->with('success', 'Your review has been submitted Successfully,');
+      ProductStats::refreshRating((int) $data['product_id']);
+
+      return redirect()->back()->with('success', 'Your review has been submitted successfully.');
    }
    public function index(Request $request)
    {

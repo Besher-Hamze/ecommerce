@@ -17,9 +17,10 @@ use App\Http\Controllers\OrderDashController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\AssociationRuleController;
 use App\Http\Controllers\Admin\AprioriController;
+use App\Http\Controllers\Admin\RecommendationController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdminController;
-use  Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Artisan;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 /*
 |--------------------------------------------------------------------------
@@ -88,10 +89,11 @@ Route::get('recommendations', [AssociationRuleController::class, 'recommendation
 Route::post('detail/add', [StoreController::class, 'addToCartFromDetail'])->name('cart.detail.store');
 //cart
 Route::get('list', [StoreController::class, 'cartList'])->name('cart.list');
+Route::get('cart/mini', [StoreController::class, 'miniCart'])->name('cart.mini');
 Route::post('store/add-to-cart/{id}', [StoreController::class, 'addToCart'])->name('cart.store');
-//  مشان ال+و_ بالكميات 
+Route::post('cart/bundle', [StoreController::class, 'addBundle'])->name('cart.bundle');
+Route::post('cart/swap-upsell', [StoreController::class, 'swapUpsell'])->name('cart.swap');
 Route::patch('update-cart', [StoreController::class, 'update'])->name('update.cart');
-//  مشان حذف المنتج 
 Route::delete('remove-from-cart', [StoreController::class, 'remove'])->name('remove.from.cart');
 /*Route::group(
     [
@@ -192,15 +194,18 @@ Route::prefix('admin')->middleware(['auth', 'isAdmin'])->group(function () {
         }
     );
 
-    // Apriori Association Rules Routes
+    Route::controller(RecommendationController::class)->group(function () {
+        Route::get('recommendations', 'index')->name('admin.recommendations.index');
+        Route::post('recommendations/train', 'train')->name('admin.recommendations.train');
+        Route::post('recommendations/evaluate', 'evaluate')->name('admin.recommendations.evaluate');
+        Route::get('association-rules', 'rules')->name('admin.association-rules.index');
+    });
+
+    // Legacy php-ml Apriori page (kept for comparison)
     Route::controller(AprioriController::class)->group(function () {
         Route::get('apriori', 'index')->name('apriori.index');
         Route::get('apriori/rules', 'generateRules')->name('apriori.rules');
         Route::get('apriori/statistics', 'statistics')->name('apriori.statistics');
-    });
-
-    Route::controller(AssociationRuleController::class)->group(function () {
-        Route::get('association-rules', 'index')->name('admin.association-rules.index');
     });
 });
 

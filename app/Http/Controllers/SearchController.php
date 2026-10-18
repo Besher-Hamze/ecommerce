@@ -2,40 +2,76 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\Shop_product;
+use App\Models\Brand;
+use App\Models\Category;
 use App\Models\Product;
+use Illuminate\Http\Request;
 
 class SearchController extends Controller
-{ //  بحث  حسب الكلمة بجيب المفتاحية  منتج وبجيب كل المنتجات حسب الكلمة المفتاحية 
+{
     public function search(Request $request)
-    { 
-        $category_id = $request->category_id;
-        $search = $request->search;
+    {
+        $categoryId = (int) $request->input('category_id', 0);
+        $brandId = (int) $request->input('brand_id', 0);
+        $minPrice = $request->filled('min_price') ? (float) $request->input('min_price') : null;
+        $maxPrice = $request->filled('max_price') ? (float) $request->input('max_price') : null;
+        $minRating = $request->filled('min_rating') ? (float) $request->input('min_rating') : null;
+        $search = trim((string) $request->input('search', ''));
+        $sort = $request->input('sort', 'popular');
 
-        $products = Product::join('shop_products','products.id','=','shop_products.product_id')
-            ->select('products.*', 'shop_products.price', 'shop_products.id as shop_product_id');
+        $query = Product::catalog()->where('shop_products.status', 1);
 
-        if ($category_id != 0) {
-            $products = $products->where('shop_products.category_id', $category_id);
+        if ($categoryId > 0) {
+            $childIds = Category::where('parent_id', $categoryId)->pluck('id')->all();
+            $ids = array_merge([$categoryId], $childIds);
+            $query->whereIn('shop_products.category_id', $ids);
         }
 
-        if ($search) {
-            $products->where(function ($products) use ($search) {
-                $products->where('products.name', 'like', '%' . $search . '%')
-                         ->orWhere('products.product_code', 'like', '%' . $search . '%')
-                         ->orWhere('products.description', 'like', '%' . $search . '%')
-                         ->orWhere('products.eng_name', 'like', '%' . $search . '%')
-                         ->orWhere('products.eng_description', 'like', '%' . $search . '%');      
+        if ($brandId > 0) {
+            $query->where('shop_products.brand_id', $brandId);
+        }
+
+        if ($minPrice !== null) {
+            $query->where('shop_products.price', '>=', $minPrice);
+        }
+        if ($maxPrice !== null) {
+            $query->where('shop_products.price', '<=', $maxPrice);
+        }
+        if ($minRating !== null) {
+            $query->where('products.rating_avg', '>=', $minRating);
+        }
+
+        if ($search !== '') {
+            $like = '%' . $search . '%';
+            $query->where(function ($q) use ($like) {
+                $q->where('products.name', 'ilike', $like)
+                    ->orWhere('products.eng_name', 'ilike', $like)
+                    ->orWhere('products.product_code', 'ilike', $like)
+                    ->orWhere('products.description', 'ilike', $like)
+                    ->orWhere('brands.name', 'ilike', $like);
             });
         }
 
-        //  16 بكل دفعة عرض النتائج بشكل عشوائي
-        $products = $products->inRandomOrder()->paginate(16);
+        match ($sort) {
+            'price_asc' => $query->orderBy('shop_products.price'),
+            'price_desc' => $query->orderByDesc('shop_products.price'),
+            'rating' => $query->orderByDesc('products.rating_avg')->orderByDesc('products.rating_count'),
+            'newest' => $query->orderByDesc('products.created_at'),
+            'name' => $query->orderBy('products.eng_name'),
+            default => $query->orderByDesc('products.sales_count')->orderByDesc('products.rating_avg'),
+        };
 
-        // الحفاظ على قيم البحث عند التنقل بين الصفحات
-        $products->appends(['search' => $search, 'category_id' => $category_id]);
+        $products = $query->paginate(16)->appends($request->query());
 
-        return view('website.all-products', compact('products'));
+        $brands = Brand::orderBy('name')->get(['id', 'name']);
+        $categories = Category::whereNull('parent_id')->where('status', 1)
+            ->with(['children' => fn ($q) => $q->where('status', 1)->orderBy('sort_order')])
+            ->orderBy('sort_order')
+            ->get();
+
+        return view('website.all-products', compact(
+            'products', 'brands', 'categories', 'categoryId', 'brandId',
+            'minPrice', 'maxPrice', 'minRating', 'search', 'sort'
+        ));
     }
 }

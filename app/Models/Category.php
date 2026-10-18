@@ -2,51 +2,50 @@
 
 namespace App\Models;
 
+use App\Providers\AppServiceProvider;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Shop_product;
 use Illuminate\Support\Facades\Cache;
+
 class Category extends Model
 {
     use HasFactory;
-    protected $table="categories";
-	public $incrementing = false;
-    protected $fillable=['name','eng_name'];
-   public function products()
-{
-    return $this->hasManyThrough(
-        Product::class,       // الجدول النهائي (products)
-        Shop_product::class,   // الجدول الوسيط (shop_products)
-        'category_id',        // المفتاح الأجنبي في shop_products اللي يربط بـ categories
-        'id',                 // المفتاح الأساسي في products
-        'id',                 // المفتاح الأساسي في categories
-        'product_id'          // المفتاح الأجنبي في shop_products اللي يربط بـ products
-    );
-}
+
+    protected $table = "categories";
+
+    protected $fillable = ['name', 'eng_name', 'slug', 'icon', 'parent_id', 'status', 'sort_order', 'description', 'eng_description'];
+
+    public function products()
+    {
+        return $this->hasManyThrough(
+            Product::class,
+            Shop_product::class,
+            'category_id', // shop_products.category_id
+            'id',          // products.id
+            'id',          // categories.id
+            'product_id'   // shop_products.product_id
+        );
+    }
 
     public function children()
     {
-        return $this->hasMany(Category::class,'parent_id');
+        return $this->hasMany(Category::class, 'parent_id');
     }
 
     public function parents()
     {
         return $this->belongsTo(Category::class, 'parent_id');
     }
+
     public static function countCategory(Category $category)
     {
-        $countCategory=$category->children->count();
-        return $countCategory;
+        return $category->children->count();
     }
-	public static function boot() {
-        parent::boot();
-        static::saving(function () {
-            Cache::flush();
-			
-        } );
-        static::updating(function () {
-            Cache::flush();
-        } );
-        static::deleting(function(){Cache::flush();});
+
+    protected static function booted()
+    {
+        $forget = fn () => Cache::forget(AppServiceProvider::CATEGORIES_CACHE_KEY);
+        static::saved($forget);
+        static::deleted($forget);
     }
 }

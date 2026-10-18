@@ -20,7 +20,7 @@ class Kernel extends ConsoleKernel
 
     protected function schedule(Schedule $schedule)
     {
-       // $schedule->command('image:sync')->everyMinute();
+        $schedule->command('recommendations:train')->weekly()->sundays()->at('03:00');
     }
 
     /**

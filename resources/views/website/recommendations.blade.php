@@ -1,42 +1,24 @@
 @extends('website.master')
-
+@section('title', ($title ?? 'For you') . ' | Noor-Store')
 @section('content')
-<section class="container" style="padding: 40px 0;">
-    <h2 style="margin-bottom:20px;">Smart Cosmetic Recommendations</h2>
-
-    @if($product)
-    <div class="alert alert-info">
-        Because customer is interested in: <strong>{{ $product->name }}</strong>
-    </div>
-    @endif
-
-    <div class="row">
-        @forelse($recommendations as $entry)
-        @php
-        $item = $entry['product'];
-        $rule = $entry['rule'];
-        @endphp
-        <div class="col-md-3" style="margin-bottom:20px;">
-            <div class="panel panel-default">
-                <div class="panel-body text-center">
-                    <h4>{{ $item->name }}</h4>
-                    <a href="{{ route('product.details', $item->id) }}" class="btn btn-primary btn-sm">View Product</a>
-                    <hr>
-                    <small>
-                        Support: {{ number_format($rule->support, 3) }} |
-                        Confidence: {{ number_format($rule->confidence, 3) }} |
-                        Lift: {{ number_format($rule->lift, 3) }}
-                    </small>
-                </div>
-            </div>
-        </div>
+<div class="container-fluid page-header py-5">
+    <h1 class="text-center text-white display-6">{{ $title ?? 'For you' }}</h1>
+    <ol class="breadcrumb justify-content-center mb-0">
+        <li class="breadcrumb-item"><a href="{{ route('welcome.index') }}">Home</a></li>
+        <li class="breadcrumb-item active text-white">Recommendations</li>
+    </ol>
+</div>
+<div class="container py-5">
+    <p class="noor-section-sub mb-4">Powered by Apriori cross-sell, TF-IDF upsell and item-based collaborative filtering.</p>
+    <div class="row g-4">
+        @forelse($recommendations as $product)
+            @include('website.product-card', ['product' => $product, 'recSource' => $productId ? 'cross_sell' : 'cf'])
         @empty
-        <div class="col-12">
-            <div class="alert alert-warning">
-                No recommendations available for this product yet.
+            <div class="col-12 text-center text-muted py-5">
+                Browse a few products or add items to your cart to get personalised picks.
+                <div class="mt-3"><a href="{{ route('products.all') }}" class="btn btn-primary rounded-pill">Shop now</a></div>
             </div>
-        </div>
         @endforelse
     </div>
-</section>
+</div>
 @endsection

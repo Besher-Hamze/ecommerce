@@ -25,13 +25,13 @@
                         <div class="col-md-12 col-lg-6">
                             <div class="form-item w-100">
                                 <label class="form-label my-3">First Name<sup>*</sup></label>
-                                <input type="text" name="first_name" class="form-control" required>
+                                <input type="text" name="first_name" class="form-control" value="{{ old('first_name', $user->first_name ?? '') }}" required>
                             </div>
                         </div>
                         <div class="col-md-12 col-lg-6">
                             <div class="form-item w-100">
                                 <label class="form-label my-3">Last Name<sup>*</sup></label>
-                                <input type="text" name="last_name" class="form-control" required>
+                                <input type="text" name="last_name" class="form-control" value="{{ old('last_name', $user->last_name ?? '') }}" required>
                             </div>
                         </div>
                     </div>
@@ -42,23 +42,23 @@
                     </div>
                     <div class="form-item">
                         <label class="form-label my-3">Town/City</label>
-                        <input type="text" name="city" class="form-control">
+                        <input type="text" name="city" class="form-control" value="{{ old('city', $user->city ?? '') }}">
                     </div>
                     <div class="form-item">
                         <label class="form-label my-3">Country</label>
-                        <input type="text" name="country" class="form-control">
+                        <input type="text" name="country" class="form-control" value="{{ old('country') }}">
                     </div>
                     <div class="form-item">
                         <label class="form-label my-3">Postcode/Zip</label>
-                        <input type="text" name="zipcode" class="form-control">
+                        <input type="text" name="zipcode" class="form-control" value="{{ old('zipcode') }}">
                     </div>
                     <div class="form-item">
                         <label class="form-label my-3">Mobile<sup>*</sup></label>
-                        <input type="tel" name="mobile" class="form-control" required>
+                        <input type="tel" name="mobile" class="form-control" value="{{ old('mobile', $user->phone ?? '') }}" required>
                     </div>
                     <div class="form-item">
                         <label class="form-label my-3">Email Address<sup>*</sup></label>
-                        <input type="email" name="email" class="form-control" required>
+                        <input type="email" name="email" class="form-control" value="{{ old('email', $user->email ?? '') }}" required>
                     </div>
 
 
@@ -79,7 +79,6 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @php $subtotal = 0; @endphp
                                 @foreach($cart as $item)
                                 <tr>
                                     <td>
@@ -88,23 +87,20 @@
                                     <td class="py-4">{{ $item['name'] }}</td>
                                     <td class="py-4">${{ number_format($item['price'], 2) }}</td>
                                     <td class="py-4">{{ $item['quantity'] }}</td>
-                                    <td class="py-4">
-                                        ${{ number_format($item['price'] * $item['quantity'], 2) }}
-                                        @php $subtotal += $item['price'] * $item['quantity']; @endphp
-                                    </td>
+                                    <td class="py-4">${{ number_format($item['price'] * $item['quantity'], 2) }}</td>
                                 </tr>
                                 @endforeach
                                 <tr>
                                     <td colspan="4" class="text-end fw-bold">Subtotal</td>
-                                    <td>${{ number_format($subtotal, 2) }}</td>
+                                    <td>${{ number_format($totals['subtotal'], 2) }}</td>
                                 </tr>
                                 <tr>
                                     <td colspan="4" class="text-end fw-bold">Shipping</td>
-                                    <td>$0.00</td>
+                                    <td>{{ $totals['free'] ? 'Free' : '$'.number_format($totals['shipping'], 2) }}</td>
                                 </tr>
                                 <tr>
                                     <td colspan="4" class="text-end fw-bold text-uppercase">Total</td>
-                                    <td>${{ number_format($subtotal, 2) }}</td>
+                                    <td>${{ number_format($totals['total'], 2) }}</td>
                                 </tr>
                             </tbody>
                         </table>

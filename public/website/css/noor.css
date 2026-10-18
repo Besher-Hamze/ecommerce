@@ -1,0 +1,189 @@
+/* Noor-Store storefront overrides */
+:root {
+    --noor-rose: #D46A92;
+    --noor-blush: #F3C6CF;
+    --noor-plum: #6A1B4D;
+    --noor-cream: #FFF8FA;
+    --noor-ink: #2B1422;
+    --noor-muted: #7A5A68;
+}
+
+body {
+    color: var(--noor-ink);
+    background:
+        radial-gradient(1200px 500px at 10% -10%, rgba(243, 198, 207, 0.55), transparent 60%),
+        radial-gradient(900px 400px at 100% 0%, rgba(212, 106, 146, 0.18), transparent 55%),
+        #fff;
+}
+
+.navbar-brand h1,
+.text-primary {
+    color: var(--noor-rose) !important;
+}
+
+.bg-primary {
+    background-color: var(--noor-rose) !important;
+}
+
+.bg-secondary {
+    background-color: var(--noor-blush) !important;
+}
+
+.btn-primary {
+    background-color: var(--noor-rose);
+    border-color: var(--noor-rose);
+}
+
+.btn-primary:hover {
+    background-color: var(--noor-plum);
+    border-color: var(--noor-plum);
+}
+
+.page-header {
+    background: linear-gradient(135deg, var(--noor-plum), var(--noor-rose)) !important;
+}
+
+.hero-header {
+    background:
+        linear-gradient(120deg, rgba(255, 248, 250, 0.92), rgba(243, 198, 207, 0.55)),
+        radial-gradient(circle at 80% 20%, rgba(212, 106, 146, 0.25), transparent 45%);
+}
+
+.noor-product-card {
+    background: #fff;
+    border: 1px solid rgba(212, 106, 146, 0.18);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: transform .2s ease, box-shadow .2s ease;
+    height: 100%;
+}
+
+.noor-product-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 28px rgba(106, 27, 77, 0.12);
+}
+
+.noor-product-card .thumb {
+    aspect-ratio: 1;
+    background: var(--noor-cream);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.noor-product-card .thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    padding: .75rem;
+}
+
+.noor-product-card .brand {
+    font-size: .75rem;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    color: var(--noor-muted);
+}
+
+.noor-product-card .title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--noor-ink);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: 2.6em;
+}
+
+.noor-stars {
+    color: #E8A838;
+    font-size: .85rem;
+}
+
+.noor-stars .muted {
+    color: #D9C4CC;
+}
+
+.noor-badge {
+    font-size: .7rem;
+    background: var(--noor-blush);
+    color: var(--noor-plum);
+    border-radius: 999px;
+    padding: .15rem .55rem;
+}
+
+.noor-section-title {
+    font-weight: 700;
+    color: var(--noor-plum);
+}
+
+.noor-section-sub {
+    color: var(--noor-muted);
+    max-width: 36rem;
+}
+
+.noor-shipping-bar {
+    height: 8px;
+    background: #F0E4E8;
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.noor-shipping-bar > span {
+    display: block;
+    height: 100%;
+    background: linear-gradient(90deg, var(--noor-rose), var(--noor-plum));
+    transition: width .3s ease;
+}
+
+.noor-upsell {
+    border: 1px dashed var(--noor-rose);
+    border-radius: 12px;
+    background: var(--noor-cream);
+    padding: .75rem 1rem;
+}
+
+.noor-bundle {
+    border: 1px solid rgba(212, 106, 146, 0.25);
+    border-radius: 16px;
+    background: #fff;
+    padding: 1.25rem;
+}
+
+.noor-filter-panel {
+    background: #fff;
+    border: 1px solid rgba(212, 106, 146, 0.15);
+    border-radius: 16px;
+    padding: 1.25rem;
+}
+
+.mega-menu {
+    min-width: 280px;
+    max-height: 360px;
+    overflow-y: auto;
+}
+
+.mega-menu .parent {
+    font-weight: 700;
+    color: var(--noor-plum);
+    font-size: .85rem;
+    padding: .35rem 1rem;
+}
+
+#miniCartOffcanvas .offcanvas-body {
+    background: var(--noor-cream);
+}
+
+.noor-rec-rail {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1rem;
+}
+
+@media (max-width: 575px) {
+    .noor-rec-rail {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}

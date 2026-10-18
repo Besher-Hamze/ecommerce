@@ -110,11 +110,11 @@ class UserController extends Controller
 	public function orderDetails($id)
 	{
 		$details=Order::join('order_items','orders.id','=','order_items.order_id')
-			           ->join('shop_products','shop_products.id','=','order_items.product_id')
-			           ->join('products','products.id','=','shop_products.product_id')
+			           ->join('products','products.id','=','order_items.product_id')
 			           ->where('orders.id','=',$id)
-	->select('products.name','products.eng_name','products.id','products.image_url','order_items.quantity','order_items.unit_price','products.product_code')
-		->get();
-		              return view('website.order-details',compact('details'));
+			           ->where('orders.user_id','=',auth()->id())
+			           ->select('products.name','products.eng_name','products.id','products.image_url','order_items.quantity','order_items.unit_price','products.product_code','order_items.rec_source')
+			           ->get();
+		return view('website.order-details',compact('details'));
 	}
 }

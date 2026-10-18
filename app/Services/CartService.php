@@ -5,6 +5,9 @@ namespace App\Services;
 use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\Product;
+use App\Models\Setting;
+use App\Providers\AppServiceProvider;
+use Illuminate\Support\Facades\Cache;
 
 class CartService
 {
@@ -14,6 +17,43 @@ class CartService
             fn ($item) => (int) ($item['quantity'] ?? 0),
             $cart
         ));
+    }
+
+    public static function subtotal(array $cart): float
+    {
+        return round(array_sum(array_map(
+            fn ($item) => ((float) ($item['price'] ?? 0)) * ((int) ($item['quantity'] ?? 0)),
+            $cart
+        )), 2);
+    }
+
+    /** @return array{subtotal: float, shipping: float, total: float, free_threshold: float, free: bool} */
+    public static function totals(array $cart): array
+    {
+        $settings = Cache::remember(AppServiceProvider::SETTINGS_CACHE_KEY, 3600, function () {
+            return Setting::pluck('value', 'key')->all();
+        });
+        $subtotal = self::subtotal($cart);
+        $threshold = (float) ($settings['free_shipping_threshold'] ?? 50);
+        $flat = (float) ($settings['flat_shipping'] ?? 3);
+        $free = $subtotal >= $threshold;
+        $shipping = ($cart && !$free) ? $flat : 0.0;
+
+        return [
+            'subtotal' => $subtotal,
+            'shipping' => $shipping,
+            'total' => round($subtotal + $shipping, 2),
+            'free_threshold' => $threshold,
+            'free' => $free,
+        ];
+    }
+
+    public static function productIds(array $cart): array
+    {
+        return array_values(array_unique(array_map(
+            fn ($item) => (int) ($item['id'] ?? 0),
+            $cart
+        )));
     }
 
     public static function merge(array $primary, array $secondary): array
@@ -47,7 +87,7 @@ class CartService
         foreach ($dbCart->items as $item) {
             $product = Product::join('shop_products', 'products.id', '=', 'shop_products.product_id')
                 ->where('shop_products.id', '=', $item->shop_product_id)
-                ->first();
+                ->first(['products.id', 'products.eng_name', 'products.name', 'products.image_url']);
 
             if (!$product) {
                 continue;
@@ -60,7 +100,8 @@ class CartService
                 'name' => $product->name,
                 'quantity' => (int) $item->quantity,
                 'price' => $item->price,
-                'image' => $product->image_url,
+                'image' => Product::imageUrl($product->image_url),
+                'source' => $item->source,
             ];
         }
 
@@ -89,6 +130,7 @@ class CartService
                 'shop_product_id' => $shopProductId,
                 'quantity' => (int) ($item['quantity'] ?? 1),
                 'price' => $item['price'],
+                'source' => $item['source'] ?? null,
             ]);
 
             $total += $item['price'] * (int) ($item['quantity'] ?? 1);

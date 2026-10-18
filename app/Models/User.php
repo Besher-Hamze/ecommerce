@@ -25,7 +25,8 @@ class User extends Authenticatable
 		'last_name',
 		'city',
 		'phone',
-        'role'
+        'role',
+        'segment',
     ];
 
     /**
@@ -52,5 +53,10 @@ class User extends Authenticatable
 	  public function order(){
         return $this->hasMany(Order::class,'user_id');
      }
+
+    public function isAdmin(): bool
+    {
+        return (int) $this->role === 1;
+    }
      
 }

@@ -12,11 +12,15 @@ class AssociationRule extends Model
     protected $table = 'association_rules';
 
     protected $fillable = [
+        'level',
         'antecedent',
         'consequent',
+        'antecedent_size',
         'support',
         'confidence',
         'lift',
+        'leverage',
+        'conviction',
         'antecedent_count',
         'consequent_count',
         'both_count',
@@ -26,38 +30,27 @@ class AssociationRule extends Model
     ];
 
     protected $casts = [
-        'antecedent'  => 'array',
-        'consequent'  => 'array',
-        'support'     => 'double',
-        'confidence'  => 'double',
-        'lift'        => 'double',
+        'antecedent' => 'array',
+        'consequent' => 'array',
+        'support' => 'double',
+        'confidence' => 'double',
+        'lift' => 'double',
+        'leverage' => 'double',
+        'conviction' => 'double',
     ];
 
-    /**
-     * Scope: filter rules with lift > 1 (positive correlation)
-     */
     public function scopePositiveCorrelation($query)
     {
         return $query->where('lift', '>', 1.0);
     }
 
-    /**
-     * Scope: filter strong rules (high confidence)
-     */
     public function scopeStrongRules($query, $minConfidence = 0.5)
     {
         return $query->where('confidence', '>=', $minConfidence);
     }
 
-    /**
-     * Get recommendations for a given product name
-     */
-    public static function getRecommendationsFor(string $productName, int $limit = 5)
+    public function scopeProductLevel($query)
     {
-        return static::where('antecedent', 'LIKE', '%"' . $productName . '"%')
-            ->where('lift', '>', 1.0)
-            ->orderByDesc('lift')
-            ->limit($limit)
-            ->get();
+        return $query->where('level', 'product');
     }
 }

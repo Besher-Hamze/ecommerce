@@ -1,65 +1,43 @@
-
-        <!-- Footer Start -->
-        <div class="container-fluid bg-dark text-white-50 footer pt-5 mt-5">
-            <div class="container py-5">
-                <div class="pb-4 mb-4" style="border-bottom: 1px solid rgba(226, 175, 24, 0.5) ;">
-                    <div class="row g-4">
-                        <div class="col-lg-3">
-                            <a href="#">
-                                <h1 class="text-primary mb-0">{{$place=cache('settings')->where('key','name')->first()->value}}</h1>
-                            </a>
-                        </div>
-<!--                      
-                        <div class="col-lg-3">
-                            <div class="d-flex justify-content-end pt-3">
-                                <a class="btn  btn-outline-secondary me-2 btn-md-square rounded-circle" href=""><i class="fab fa-twitter"></i></a>
-                                <a class="btn btn-outline-secondary me-2 btn-md-square rounded-circle" href=""><i class="fab fa-facebook-f"></i></a>
-                                <a class="btn btn-outline-secondary me-2 btn-md-square rounded-circle" href=""><i class="fab fa-youtube"></i></a>
-                                <a class="btn btn-outline-secondary btn-md-square rounded-circle" href=""><i class="fab fa-linkedin-in"></i></a>
-                            </div>
-                        </div> -->
-                    </div>
+<div class="container-fluid bg-dark text-white-50 footer pt-5 mt-5">
+    <div class="container py-5">
+        <div class="pb-4 mb-4" style="border-bottom: 1px solid rgba(243, 198, 207, 0.35);">
+            <div class="row g-4 align-items-end">
+                <div class="col-lg-6">
+                    <a href="{{ route('welcome.index') }}">
+                        <h1 class="text-primary mb-2">{{ $storeSettings['name'] ?? 'Noor-Store' }}</h1>
+                    </a>
+                    <p class="mb-0 text-white-50">{{ $storeSettings['about'] ?? '' }}</p>
                 </div>
-                <div class="row g-5">
-                    <div class="col-lg-3 col-md-6">
-                        <div class="footer-item">
-                            <h4 class="text-light mb-3">Why People Like us!</h4>
-                            <p class="mb-4">
-Quality products, trusted care, and a beauty experience you can rely on</p>
-                        </div>
-                    </div>
-                    <!-- <div class="col-lg-3 col-md-6">
-                        <div class="d-flex flex-column text-start footer-item">
-                            <h4 class="text-light mb-3">Shop Info</h4>
-                            <a class="btn-link" href="">About Us</a>
-                            <a class="btn-link" href="">Contact Us</a>
-                            <a class="btn-link" href="">Privacy Policy</a>
-                            <a class="btn-link" href="">Terms & Condition</a>
-                            <a class="btn-link" href="">Return Policy</a>
-                            <a class="btn-link" href="">FAQs & Help</a>
-                        </div> 
-                    </div>-->
-                    <div class="col-lg-3 col-md-6">
-                        <div class="d-flex flex-column text-start footer-item">
-                            <h4 class="text-light mb-3">Account</h4>
-                            <a class="btn-link" href="{{ route('profile.show') }}" >My Account</a>
-                            <!-- <a class="btn-link" href="">Shop details</a> -->
-                            <a class="btn-link" href="{{ route('cart.list') }}" >Shopping Cart</a>
-                            <!-- <a class="btn-link" href="">Wishlist</a> -->
-                            <a class="btn-link" href="{{ route('user.order') }}" >Order History</a>
-                            <!-- <a class="btn-link" href="">International Orders</a> -->
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-md-6">
-                        <div class="footer-item">
-                            <h4 class="text-light mb-3">Contact</h4>
-                            <p>Address: {{$place=cache('settings')->where('key','address')->first()->value}}</p>
-                            <p>Email: {{$place=cache('settings')->where('key','email')->first()->value}}</p>
-                            <p>Phone: {{$place=cache('settings')->where('key','wats_phone')->first()->value}}</p>
-                            <img src="img/payment.png" class="img-fluid" alt="">
-                        </div>
-                    </div>
+                <div class="col-lg-6 text-lg-end">
+                    <p class="mb-0">{{ $storeSettings['work_time'] ?? '' }}</p>
                 </div>
             </div>
         </div>
-        <!-- Footer End -->
+        <div class="row g-5">
+            <div class="col-lg-4 col-md-6">
+                <div class="footer-item">
+                    <h4 class="text-light mb-3">Shop smart</h4>
+                    <p class="mb-4">Cross-sell, upsell and personalised picks built from real shopping baskets — so every recommendation earns its place in your routine.</p>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="d-flex flex-column text-start footer-item">
+                    <h4 class="text-light mb-3">Account</h4>
+                    <a class="btn-link" href="{{ route('profile.show') }}">My Account</a>
+                    <a class="btn-link" href="{{ route('cart.list') }}">Shopping Cart</a>
+                    <a class="btn-link" href="{{ route('user.order') }}">Order History</a>
+                    <a class="btn-link" href="{{ route('recommendations.index') }}">For you</a>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="footer-item">
+                    <h4 class="text-light mb-3">Contact</h4>
+                    <p>Address: {{ $storeSettings['address'] ?? '' }}</p>
+                    <p>Email: {{ $storeSettings['email'] ?? '' }}</p>
+                    <p>Phone: {{ $storeSettings['wats_phone'] ?? '' }}</p>
+                    <p class="small">Free shipping over ${{ $storeSettings['free_shipping_threshold'] ?? 50 }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
