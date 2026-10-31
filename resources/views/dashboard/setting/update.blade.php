@@ -68,146 +68,132 @@
                                                             <div class="form-group">
                                                                 <label class="col-sm-2 col-sm-2 control-label">عنوان الميتا
                                                                     تاج</label>
-                                                                <div class="col-sm-10">																	                                @php($project_meta_title=\App\Models\Setting::where('key','meta_title')->first()->value)
-                                                                    <input type="text" class="form-control req"
-                                                                        name="meta_title" id="meta_title" value="{{$project_meta_title}}" />
+                                                                <div class="col-sm-10">																	                                <input type="text" class="form-control req"
+                                                                        name="meta_title" id="meta_title" value="{{ $settings['meta_title'] ?? '' }}" />
                                                                     <p class="help-block"></p>
                                                                 </div>
                                                             </div>
                                                             <div class="form-group">
-																  @php($project_meta_description=\App\Models\Setting::where('key','meta_description')->first()->value)
-                                                                <label class="col-sm-2 col-sm-2 control-label">علامات الميتا
+																  <label class="col-sm-2 col-sm-2 control-label">علامات الميتا
                                                                     تاج</label>
                                                                 <div class="col-sm-10">
-                                                                    <textarea type="text" class="form-control" name="meta_description" id="eng_meta_description">{{$project_meta_description}}</textarea>
+                                                                    <textarea type="text" class="form-control" name="meta_description" id="eng_meta_description">{{ $settings['meta_description'] ?? '' }}</textarea>
                                                                 </div>
                                                             </div>
                                                             <div class="form-group">
-																@php($project_meta_keyword=\App\Models\Setting::where('key','meta_keyword')->first()->value)
-                                                                <label class="col-sm-2 col-sm-2 control-label">كلمات الميتا
+																<label class="col-sm-2 col-sm-2 control-label">كلمات الميتا
                                                                     تاغ</label>
                                                                 <div class="col-sm-10">
-                                                                    <textarea type="text" class="form-control" name="meta_keyword" id="eng_meta_keyword">{{$project_meta_keyword}}</textarea>
+                                                                    <textarea type="text" class="form-control" name="meta_keyword" id="eng_meta_keyword">{{ $settings['meta_keyword'] ?? '' }}</textarea>
                                                                 </div>
                                                             </div>
                                                         </div>
 
-                                                        <div id="profile" class="tab-pane">                                                         @php($project_name=\App\Models\Setting::where('key','name')->first()->value)
-                                                            <div class="row form-group">
+                                                        <div id="profile" class="tab-pane">                                                         <div class="row form-group">
                                                                 <div class="col-lg-6">
                                                                     <label class="col-md-3  control-label">
 اسم المتجر  </label>
                                                                     <div class="col-md-8">
                                                                         <input type="text" name="name"
                                                                             id="name" class="form-control req"
-                                                                          placeholder="اسم المتجر..." value="{{$project_name}}" />
+                                                                          placeholder="اسم المتجر..." value="{{ $settings['name'] ?? '' }}" />
                                                                         <p class="help-block"></p>
                                                                     </div>
                                                                 </div>
                                                                 <div class="col-lg-6">
                                                                     <label class="col-md-3  control-label">
-																		@php($project_owner=\App\Models\Setting::where('key','owner')->first()->value)
-                                                                      مالك المتجر
+																		مالك المتجر
                                                                     </label>
                                                                     <div class="col-md-8">
                                                                         <input type="text" 
                                                                             name="owner" id="owner"
-                                                                            class="form-control req"  placeholder="مالك المتجر..." value="{{$project_owner}}"/>
+                                                                            class="form-control req"  placeholder="مالك المتجر..." value="{{ $settings['owner'] ?? '' }}"/>
                                                                     </div>
                                                                 </div>
                                                             </div>  
                                                             <div class="row form-group">
-																@php($project_address=\App\Models\Setting::where('key','address')->first()->value)
-                                                                <div class="col-lg-6">
+																<div class="col-lg-6">
                                                                     <label class="col-md-3  control-label">
                                                                         العنوان
                                                                     </label>
                                                                     <div class="col-md-8">
                                                                         <input type="text" name="address"
                                                                             id="address" class="form-control req"
-                                                                           placeholder="عنوان المتجر..." value="{{$project_address}}"/>
+                                                                           placeholder="عنوان المتجر..." value="{{ $settings['address'] ?? '' }}"/>
                                                                         <p class="help-block"></p>
                                                                     </div>
                                                                 </div>
                                                                 <div class="col-lg-6">
-																															@php($project_coordinates=\App\Models\Setting::where('key','coordinates')->first()->value)
-                                                                    <label class="col-md-3  control-label">
+																															<label class="col-md-3  control-label">
 احداثية المتجر                                                                      </label>
                                                                     <div class="col-md-8">
                                                                         <input type="text" 
                                                                             name="coordinates" id="coordinates"
-                                                                            class="form-control"  placeholder="احداثيات المتجر..." value="{{$project_coordinates}}"/>
+                                                                            class="form-control"  placeholder="احداثيات المتجر..." value="{{ $settings['coordinates'] ?? '' }}"/>
                                                                         <p class="help-block"></p>
                                                                     </div>
                                                                 </div>
                                                             </div> 
                                                         
                                                             <div class="row form-group">
-																																															@php($project_email=\App\Models\Setting::where('key','email')->first()->value)
-                                                                <div class="col-lg-6">
+																																															<div class="col-lg-6">
                                                                     <label class="col-md-3  control-label">
                                                                         البريد الالكتروني
                                                                     </label>
                                                                     <div class="col-md-8">
                                                                         <input type="email" name="email"
                                                                             id="email" class="form-control req"
-                                                                            placeholder="البريد الالكتروني..." value="{{$project_email}}" />
+                                                                            placeholder="البريد الالكتروني..." value="{{ $settings['email'] ?? '' }}" />
                                                                         <p class="help-block"></p>
                                                                     </div>
                                                                 </div>
                                                                 <div class="col-lg-6">
-																	@php($project_work_time=\App\Models\Setting::where('key','work_time')->first()->value)
-                                                                    <label class="col-md-3  control-label">
+																	<label class="col-md-3  control-label">
                                                                      أوقات الدوام    
                                                                     </label>
                                                                     <div class="col-md-8">
                                                                         <input type="text" 
                                                                             name="work_time" id="work_time"
-                                                                            class="form-control req"  placeholder="أوقات دوام المتجر..." value="{{$project_work_time}}"/>
+                                                                            class="form-control req"  placeholder="أوقات دوام المتجر..." value="{{ $settings['work_time'] ?? '' }}"/>
                                                                         <p class="help-block"></p>
                                                                     </div>
                                                                 </div>
                                                             </div> 
 															 <div class="row form-group">
-																 																																															@php($project_const_phone=\App\Models\Setting::where('key','const_phone')->first()->value)
-
-                                                                <div class="col-lg-6">
+																 																																															<div class="col-lg-6">
                                                                     <label class="col-md-3  control-label">
                                                                         الهاتف الثابت
                                                                     </label>
                                                                     <div class="col-md-8">
                                                                         <input type="number" name="const_phone"
                                                                             id="const_phone" class="form-control num"
-                                                                            placeholder="الهاتف الثابت..." value="{{$project_const_phone}}"/>
+                                                                            placeholder="الهاتف الثابت..." value="{{ $settings['const_phone'] ?? '' }}"/>
                                                                         <p class="help-block"></p>
                                                                     </div>
                                                                 </div>
                                                                 <div class="col-lg-6">
-																	@php($project_wats_phone=\App\Models\Setting::where('key','wats_phone')->first()->value)
-                                                                    <label class="col-md-3  control-label">
+																	<label class="col-md-3  control-label">
                                                                       رقم الوتس    
                                                                     </label>
                                                                     <div class="col-md-8">
                                                                         <input type="number" 
                                                                             name="wats_phone" id="wats_phone"
-                                                                            class="form-control num"  placeholder="رقم الوتس..." value="{{$project_wats_phone}}"/>
+                                                                            class="form-control num"  placeholder="رقم الوتس..." value="{{ $settings['wats_phone'] ?? '' }}"/>
                                                                         <p class="help-block"></p>
                                                                     </div>
                                                                 </div>
                                                             </div> 
 															  <div class="col-lg-6 form-group">
-																  @php($project_about=\App\Models\Setting::where('key','about')->first()->value)
-                                                                    <label class="col-md-3  control-label">
+																  <label class="col-md-3  control-label">
                                                                         حول المتجر
                                                                     </label>
-                                                                    <div class="col-md-8">                                                                                                              <textarea type="text" class="form-control" name="about" id="about">{{$project_about}}</textarea>
+                                                                    <div class="col-md-8">                                                                                                              <textarea type="text" class="form-control" name="about" id="about">{{ $settings['about'] ?? '' }}</textarea>
                                                                      <p class="help-block"></p>
                                                                     </div>
                                                                 </div>
                                                         </div>
                                                         <div id="contact" class="tab-pane">
-															 @php($project_image=\App\Models\Setting::where('key','image')->first()->value)
-                                                            <div class="form-group last">
+															 <div class="form-group last">
                                                                 <label class="control-label col-md-3">لوغو
                                                                     المتجر</label>
                                                                 <div class="col-md-9">
@@ -215,7 +201,7 @@
                                                                         data-provides="fileupload">
                                                                         <div class="fileupload-new thumbnail"
                                                                             style="width: 200px; height: 150px;">
-                                                                            <img src="{{ asset('img/logo/'.$project_image) }}"
+                                                                            <img src="{{ asset('img/logo/'.($settings['image'] ?? '')) }}"
                                                                                 alt="" />
                                                                         </div>
                                                                         <div class="fileupload-preview fileupload-exists thumbnail"
@@ -267,5 +253,5 @@
 
 @endsection
 @section('script')
-    <script src="{{ asset('my_js\brand_submit.js') }}"></script>
+    <script src="{{ asset('my_js/brand_submit.js') }}"></script>
 @endsection

@@ -46,7 +46,7 @@
                 </div>
             @endif
 
-            <div class="d-flex align-items-center gap-3 mb-4">
+            <div class="d-flex align-items-center gap-3 mb-4 flex-wrap">
                 @if($product->price > 0)
                     <input type="number" name="qty" id="qty" class="form-control" value="1" min="1" style="width:90px">
                     <input type="hidden" id="route" value="{{ route('cart.store', $product->id) }}">
@@ -58,6 +58,19 @@
                 @else
                     <button class="btn btn-secondary rounded-pill" disabled>Out of stock</button>
                 @endif
+                @auth
+                    <button type="button"
+                            class="btn border border-secondary rounded-pill wishlist-toggle {{ !empty($inWishlist) ? 'active' : '' }}"
+                            data-id="{{ $product->id }}"
+                            data-route="{{ route('favorite.add', $product->id) }}">
+                        <i class="{{ !empty($inWishlist) ? 'fas text-danger' : 'far' }} fa-heart me-1"></i>
+                        <span class="wishlist-label">{{ !empty($inWishlist) ? 'Saved' : 'Save' }}</span>
+                    </button>
+                @else
+                    <a href="{{ route('login') }}" class="btn border border-secondary rounded-pill">
+                        <i class="far fa-heart me-1"></i> Save
+                    </a>
+                @endauth
             </div>
 
             @if($upsells->isNotEmpty())

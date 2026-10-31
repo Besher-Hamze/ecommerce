@@ -66,10 +66,11 @@ Route::post('/products/import', [ProductController::class, 'import'])->name('pro
 //search عملية البحث وعملية اظهار المنتجات 
 Route::get('all_products', [SearchController::class, 'Search'])->name('products.all');
 Route::get('sort_products', [SearchController::class, 'Search'])->name('products.sort');
-//wishlist ماعنا احببته مشان هيك مااستخدمناه
-// Route::get('favorite-update/{id}', [WishlistController::class, 'favoriteUpdate'])->name('favorite.add');
-// Route::get('wishlist', [WishlistController::class, 'wishlist'])->name('wishlist');
-// Route::delete('favorite-remove', [WishlistController::class, 'delete'])->name('remove.from.wishlist');
+Route::middleware('auth')->group(function () {
+    Route::get('wishlist', [WishlistController::class, 'wishlist'])->name('wishlist');
+    Route::post('favorite-update/{id}', [WishlistController::class, 'favoriteUpdate'])->name('favorite.add');
+    Route::delete('favorite-remove', [WishlistController::class, 'delete'])->name('remove.from.wishlist');
+});
 
 //barnd products  لانه بدا صور وشغل  وماتم استخدماها عرض الماركات 
 // Route::get('product/{id}', [BrandController::class, 'products'])->name('brand.products');
@@ -212,4 +213,4 @@ Route::prefix('admin')->middleware(['auth', 'isAdmin'])->group(function () {
 //select code
 Route::get('product_code_search/{code}', [ProductController::class, 'product_code_search'])->name('product.code_search');
 
-Route::post('review-store', [ProductController::class, 'reviewStore'])->name('review.store');
+Route::post('review-store', [ProductController::class, 'reviewStore'])->middleware('auth')->name('review.store');

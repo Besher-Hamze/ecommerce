@@ -110,8 +110,16 @@ class ProductController extends Controller
             'categories.eng_name as category_name',
             'categories.id as category_id'
          )
-         ->with(['images', 'reviews.user'])
+         ->with([
+            'images',
+            'reviews' => fn ($q) => $q->with('user')->latest(),
+         ])
          ->firstOrFail();
+
+      $inWishlist = Auth::check()
+         && \App\Models\Wishlist::where('user_id', Auth::id())
+            ->where('product_id', $product->id)
+            ->exists();
 
       $rating = (int) round($product->rating_avg ?? 0);
 
@@ -139,7 +147,7 @@ class ProductController extends Controller
       EventTracker::impressions('cf', $alsoLiked, (int) $id);
 
       return view('website.details', compact(
-         'product', 'rating', 'bundle', 'upsells', 'similar', 'alsoLiked', 'recentlyViewed'
+         'product', 'rating', 'bundle', 'upsells', 'similar', 'alsoLiked', 'recentlyViewed', 'inWishlist'
       ));
    }
 
@@ -151,12 +159,16 @@ class ProductController extends Controller
          'rating' => ['required', 'integer', 'between:1,5'],
       ]);
 
-      Review::create([
-         'product_id' => $data['product_id'],
-         'user_id' => Auth::id(),
-         'review' => $data['review'] ?? null,
-         'star' => $data['rating'],
-      ]);
+      Review::updateOrCreate(
+         [
+            'product_id' => $data['product_id'],
+            'user_id' => Auth::id(),
+         ],
+         [
+            'review' => $data['review'] ?? null,
+            'star' => $data['rating'],
+         ]
+      );
 
       ProductStats::refreshRating((int) $data['product_id']);
 

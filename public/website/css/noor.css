@@ -187,3 +187,17 @@ body {
         grid-template-columns: repeat(2, 1fr);
     }
 }
+
+.wishlist-toggle {
+    box-shadow: 0 1px 4px rgba(43, 20, 34, 0.12);
+}
+
+.wishlist-toggle.active i,
+.wishlist-toggle .fas.fa-heart {
+    color: #c0392b;
+}
+
+.noor-product-card .thumb {
+    position: relative;
+}
+

@@ -3,132 +3,67 @@
 namespace App\Http\Controllers;
 
 use App\Models\Setting;
+use App\Providers\AppServiceProvider;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\File;
 
 class SettingController extends Controller
 {
     public function index()
     {
-        $settings=Setting::all();
-        return view('dashboard.setting.index',compact('settings'));
+        $settings = Setting::pluck('value', 'key');
+
+        return view('dashboard.setting.index', compact('settings'));
     }
-	 public function create()
-    {    
+
+    public function create()
+    {
         return view('dashboard.setting.create');
     }
-	public function store(Request $request)
-	{
-		
-		Setting::updateOrCreate(['key' => 'meta_title'], [
-            'value' => $request['meta_title']
-        ]);
-		Setting::updateOrCreate(['key' => 'meta_description'], [
-            'value' => $request['meta_description']
-        ]);
-		Setting::updateOrCreate(['key' => 'meta_keyword'], [
-            'value' => $request['meta_keyword']
-        ]);
-		Setting::updateOrCreate(['key' => 'owner'], [
-            'value' => $request['owner']
-        ]);
-		Setting::updateOrCreate(['key' => 'address'], [
-            'value' => $request['address']
-        ]);
-		Setting::updateOrCreate(['key' => 'coordinates'], [
-            'value' => $request['coordinates']
-        ]);
-		Setting::updateOrCreate(['key' => 'email'], [
-            'value' => $request['email']
-        ]);
-		Setting::updateOrCreate(['key' => 'wats_phone'], [
-            'value' => $request['wats_phone']
-        ]);
-		
-		Setting::updateOrCreate(['key' => 'const_phone'], [
-            'value' => $request['const_phone']
-        ]);		
-		if ($request->hasFile('image')) {
-         $file = $request->file('image');
-         $ext = $file->getClientOriginalExtension();
-         $filename = time() . '.' . $ext;
-         $file->move('img/logo/', $filename);
-		Setting::updateOrCreate(['key' => 'image'], [
-            'value' => $filename]);
-		
-      }
-	
-        Setting::updateOrCreate(['key' => 'name'], [
-            'value' => $request['name']
-        ]);
-		Setting::updateOrCreate(['key' => 'work_time'], [
-            'value' => $request['work_time']
-        ]);
-		Setting::updateOrCreate(['key' => 'about'], [
-            'value' => $request['about']
-        ]);
-		
-		return response()->json(['msg'=>'تمت العملية بنجاح' , 'success' => true]);
 
-	}
-	public function update()
-	{
-		return view('dashboard.setting.update');
-	}
-	public function update_save(Request $request)
-	{
-		
-		Setting::updateOrCreate(['key' => 'meta_title'], [
-            'value' => $request['meta_title']
-        ]);
-		Setting::updateOrCreate(['key' => 'meta_description'], [
-            'value' => $request['meta_description']
-        ]);
-		Setting::updateOrCreate(['key' => 'meta_keyword'], [
-            'value' => $request['meta_keyword']
-        ]);
-		Setting::updateOrCreate(['key' => 'owner'], [
-            'value' => $request['owner']
-        ]);
-		Setting::updateOrCreate(['key' => 'address'], [
-            'value' => $request['address']
-        ]);
-		Setting::updateOrCreate(['key' => 'coordinates'], [
-            'value' => $request['coordinates']
-        ]);
-		Setting::updateOrCreate(['key' => 'email'], [
-            'value' => $request['email']
-        ]);
-		Setting::updateOrCreate(['key' => 'wats_phone'], [
-            'value' => $request['wats_phone']
-        ]);
-		
-		Setting::updateOrCreate(['key' => 'const_phone'], [
-            'value' => $request['const_phone']
-        ]);		if ($request->hasFile('image')) {
-         $file = $request->file('image');
-         $ext = $file->getClientOriginalExtension();
-         $filename = time() . '.' . $ext;
-         $file->move('img/logo/', $filename);
-		Setting::updateOrCreate(['key' => 'image'], [
-            'value' => $filename]);
-		
-      }
-	
-	
-		
-        Setting::updateOrCreate(['key' => 'name'], [
-            'value' => $request['name']
-        ]);
-		Setting::updateOrCreate(['key' => 'work_time'], [
-            'value' => $request['work_time']
-        ]);
-		Setting::updateOrCreate(['key' => 'about'], [
-            'value' => $request['about']
-        ]);
-		
-		return response()->json(['msg'=>'تمت العملية بنجاح' , 'success' => true]);
+    public function store(Request $request)
+    {
+        return $this->persist($request);
+    }
 
-	}
-	
+    public function update()
+    {
+        $settings = Setting::pluck('value', 'key');
+
+        return view('dashboard.setting.update', compact('settings'));
+    }
+
+    public function update_save(Request $request)
+    {
+        return $this->persist($request);
+    }
+
+    private function persist(Request $request)
+    {
+        $keys = [
+            'meta_title', 'meta_description', 'meta_keyword', 'owner', 'address',
+            'coordinates', 'email', 'wats_phone', 'const_phone', 'name', 'work_time', 'about',
+        ];
+
+        foreach ($keys as $key) {
+            if ($request->has($key)) {
+                Setting::updateOrCreate(['key' => $key], ['value' => $request->input($key)]);
+            }
+        }
+
+        if ($request->hasFile('image')) {
+            $dir = public_path('img/logo');
+            File::ensureDirectoryExists($dir);
+
+            $file = $request->file('image');
+            $filename = time() . '.' . $file->getClientOriginalExtension();
+            $file->move($dir, $filename);
+            Setting::updateOrCreate(['key' => 'image'], ['value' => $filename]);
+        }
+
+        Cache::forget(AppServiceProvider::SETTINGS_CACHE_KEY);
+
+        return response()->json(['msg' => 'تمت العملية بنجاح', 'success' => true]);
+    }
 }

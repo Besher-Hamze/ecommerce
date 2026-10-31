@@ -4,8 +4,10 @@ namespace App\Providers;
 
 use App\Models\Category;
 use App\Models\Setting;
+use App\Models\Wishlist;
 use App\Services\CartService;
 use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
@@ -37,9 +39,15 @@ class AppServiceProvider extends ServiceProvider
                     ->get();
             });
 
+            $wishlistIds = Auth::check()
+                ? Wishlist::where('user_id', Auth::id())->pluck('product_id')->all()
+                : [];
+
             $view->with('storeSettings', $settings)
                 ->with('navCategories', $navCategories)
-                ->with('cartCount', CartService::totalQuantity(session('cart', [])));
+                ->with('cartCount', CartService::totalQuantity(session('cart', [])))
+                ->with('wishlistCount', count($wishlistIds))
+                ->with('wishlistIds', $wishlistIds);
         });
     }
 }

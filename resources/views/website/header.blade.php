@@ -49,6 +49,12 @@
                             data-bs-toggle="modal" data-bs-target="#searchModal" aria-label="Search">
                         <i class="fas fa-search text-primary"></i>
                     </button>
+                    <a href="{{ auth()->check() ? route('wishlist') : route('login') }}"
+                       class="position-relative me-3 my-auto text-dark" aria-label="Wishlist" title="Wishlist">
+                        <i class="fas fa-heart fa-2x"></i>
+                        <span class="position-absolute bg-secondary rounded-circle d-flex align-items-center justify-content-center text-dark px-1"
+                              style="top: -5px; left: 15px; height: 20px; min-width: 20px;" id="wishlist_counter">{{ $wishlistCount ?? 0 }}</span>
+                    </a>
                     <button type="button" class="btn position-relative me-3 my-auto p-0 border-0 bg-transparent" id="cartIconLink"
                        data-bs-toggle="offcanvas" data-bs-target="#miniCartOffcanvas" aria-label="Open cart">
                         <i class="fa fa-shopping-bag fa-2x"></i>
@@ -63,6 +69,7 @@
                                 <i class="fas fa-user fa-2x"></i>
                             </a>
                             <div class="dropdown-menu m-0 bg-secondary rounded-0">
+                                <a href="{{ route('wishlist') }}" class="dropdown-item">Wishlist</a>
                                 <a href="{{ route('user.order') }}" class="dropdown-item">Order History</a>
                                 <a href="{{ route('profile.show') }}" class="dropdown-item">Profile</a>
                                 @if(auth()->user()->isAdmin())

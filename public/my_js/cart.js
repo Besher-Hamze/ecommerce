@@ -140,4 +140,54 @@ $(document).ready(function () {
             toastr.error("Could not add bundle.");
         });
     });
+
+    function updateWishlistBadge(count) {
+        var el = document.getElementById("wishlist_counter");
+        if (el && count !== undefined && count !== null) {
+            el.textContent = count;
+        }
+    }
+
+    $(document).on("click", ".wishlist-toggle", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var $btn = $(this);
+        var route = $btn.data("route");
+        if (!route) return;
+
+        $.ajaxSetup({ headers: { "X-CSRF-TOKEN": csrf() } });
+        $.post(route, function (res) {
+            var active = res.in_wishlist === true;
+            $btn.toggleClass("active", active);
+            $btn.find("i")
+                .toggleClass("fas", active)
+                .toggleClass("far", !active)
+                .toggleClass("text-danger", active)
+                .toggleClass("text-muted", !active);
+            $btn.find(".wishlist-label").text(active ? "Saved" : "Save");
+            $btn.attr("title", active ? "Remove from wishlist" : "Add to wishlist");
+            updateWishlistBadge(res.wishlist_count);
+
+            if (!active && $("#wish-item-" + $btn.data("id")).length) {
+                $("#wish-item-" + $btn.data("id")).fadeOut(200, function () {
+                    $(this).remove();
+                    if ($("[id^=wish-item-]").length === 0) {
+                        location.reload();
+                    }
+                });
+            }
+
+            if (typeof toastr !== "undefined") {
+                toastr.success(res.message || (active ? "Saved" : "Removed"));
+            }
+        }).fail(function (xhr) {
+            if (xhr.status === 401 || xhr.status === 419) {
+                window.location = $('meta[name="login-url"]').attr("content") || "/login";
+                return;
+            }
+            if (typeof toastr !== "undefined") {
+                toastr.error("Could not update wishlist.");
+            }
+        });
+    });
 });
