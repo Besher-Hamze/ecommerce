@@ -7,16 +7,31 @@ use App\Models\AssociationRule;
 use App\Models\Product;
 use App\Models\ProductRecommendation;
 use App\Models\RecommendationRun;
+use App\Services\Recommendation\RecommendationTrainer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 
 class RecommendationController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $latestTrain = RecommendationRun::where('kind', 'train')->latest()->first();
         $latestEval = RecommendationRun::where('kind', 'evaluate')->latest()->first();
+        $defaults = RecommendationTrainer::DEFAULTS;
+
+        // Form values: old input > forced defaults > last train params > code defaults
+        if ($request->session()->pull('use_default_thresholds')) {
+            $thresholds = $defaults;
+        } else {
+            $thresholds = array_merge(
+                $defaults,
+                is_array($latestTrain?->params) ? $latestTrain->params : [],
+                array_filter($request->old(), fn ($v) => $v !== null && $v !== '')
+            );
+            // Keep only known keys
+            $thresholds = array_intersect_key($thresholds, $defaults) + $defaults;
+        }
 
         $distinct = fn (string $type) => (int) ProductRecommendation::where('type', $type)
             ->selectRaw('COUNT(DISTINCT product_id) as c')->value('c');
@@ -58,26 +73,61 @@ class RecommendationController extends Controller
             });
 
         return view('dashboard.recommendations.index', compact(
-            'latestTrain', 'latestEval', 'coverage', 'coveragePct', 'rulesCount', 'events', 'productCount'
+            'latestTrain', 'latestEval', 'coverage', 'coveragePct', 'rulesCount',
+            'events', 'productCount', 'defaults', 'thresholds'
         ));
     }
 
     public function train(Request $request)
     {
-        $params = array_filter([
-            'min_support' => $request->input('min_support'),
-            'min_confidence' => $request->input('min_confidence'),
+        $data = $request->validate([
+            'min_support' => ['nullable', 'numeric', 'min:0.0001', 'max:1'],
+            'min_confidence' => ['nullable', 'numeric', 'min:0.01', 'max:1'],
+            'type_min_support' => ['nullable', 'numeric', 'min:0.0001', 'max:1'],
+            'type_min_confidence' => ['nullable', 'numeric', 'min:0.01', 'max:1'],
+            'max_itemset_size' => ['nullable', 'integer', 'min:2', 'max:5'],
+            'top_k' => ['nullable', 'integer', 'min:1', 'max:30'],
+        ]);
+
+        $args = array_filter([
+            '--min-support' => $data['min_support'] ?? null,
+            '--min-confidence' => $data['min_confidence'] ?? null,
+            '--type-min-support' => $data['type_min_support'] ?? null,
+            '--type-min-confidence' => $data['type_min_confidence'] ?? null,
+            '--max-itemset-size' => $data['max_itemset_size'] ?? null,
+            '--top-k' => $data['top_k'] ?? null,
         ], fn ($v) => $v !== null && $v !== '');
 
-        $exit = Artisan::call('recommendations:train', array_filter([
-            '--min-support' => $params['min_support'] ?? null,
-            '--min-confidence' => $params['min_confidence'] ?? null,
-        ]));
-
+        $exit = Artisan::call('recommendations:train', $args);
         $message = trim(Artisan::output()) ?: ($exit === 0 ? 'Training completed.' : 'Training failed.');
 
         return redirect()->route('admin.recommendations.index')
             ->with($exit === 0 ? 'success' : 'error', $message);
+    }
+
+    public function resetDefaults()
+    {
+        return redirect()->route('admin.recommendations.index')
+            ->with('use_default_thresholds', true)
+            ->with('success', 'تم استعادة القيم الافتراضية في النموذج. اضغطي Train لتطبيقها.');
+    }
+
+    public function trainDefaults()
+    {
+        $d = RecommendationTrainer::DEFAULTS;
+        $exit = Artisan::call('recommendations:train', [
+            '--min-support' => $d['min_support'],
+            '--min-confidence' => $d['min_confidence'],
+            '--type-min-support' => $d['type_min_support'],
+            '--type-min-confidence' => $d['type_min_confidence'],
+            '--max-itemset-size' => $d['max_itemset_size'],
+            '--top-k' => $d['top_k'],
+        ]);
+        $message = trim(Artisan::output()) ?: ($exit === 0 ? 'Training with defaults completed.' : 'Training failed.');
+
+        return redirect()->route('admin.recommendations.index')
+            ->with($exit === 0 ? 'success' : 'error', $message)
+            ->with('use_default_thresholds', true);
     }
 
     public function evaluate(Request $request)

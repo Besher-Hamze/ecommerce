@@ -198,6 +198,8 @@ Route::prefix('admin')->middleware(['auth', 'isAdmin'])->group(function () {
     Route::controller(RecommendationController::class)->group(function () {
         Route::get('recommendations', 'index')->name('admin.recommendations.index');
         Route::post('recommendations/train', 'train')->name('admin.recommendations.train');
+        Route::post('recommendations/reset-defaults', 'resetDefaults')->name('admin.recommendations.reset');
+        Route::post('recommendations/train-defaults', 'trainDefaults')->name('admin.recommendations.train-defaults');
         Route::post('recommendations/evaluate', 'evaluate')->name('admin.recommendations.evaluate');
         Route::get('association-rules', 'rules')->name('admin.association-rules.index');
     });
